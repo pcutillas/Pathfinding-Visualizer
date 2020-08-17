@@ -3,7 +3,7 @@
 A fast and easy-to-use pathfinding visualizer application written in Python 3.
 
 
-## Credit for Icons
+### Credit for Icons
 
 app.ico made by [Freepik](https://www.flaticon.com/free-icon/path_2064135?term=path&page=1&position=34)
 
