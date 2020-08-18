@@ -1,3 +1,4 @@
+from gui.cell import Cell
 
 
 class Node:
@@ -12,11 +13,10 @@ class Node:
         self.y = y
         self.previous = previous
         self.neighbors = []  # Gets populated once grid is fully populated too
-        self.isStart = False
-        self.isEnd = False
+        self.isStart = self.isEnd = False
 
         # For A*
-        self.f = self.g = self.h = 0
+        self.f = self.g = self.h = None
 
         # Add to array
         if len(Node.GRID) - 1 < x:
@@ -29,12 +29,29 @@ class Node:
     def setCell(self, cell):
         self.cell = cell
 
-    def populateNeighbors(self):
+    def inPath(self):
+        # A pass-through to cell's inPath method
+        self.cell.inPath()
+
+    def inList(self):
+        self.cell.draw(Cell.IN_LIST)
+
+    def searched(self):
+        # A pass-through to cell's searched method
+        self.cell.searched()
+
+    def populateNeighbors(self, withDiagonals: bool):
         """
         Populates the neighbors variable with this node's neighbors.
         """
+        self.neighbors = []
 
-        for relPos in [(0, -1), (0, 1), (-1, 0), (1, 0), (-1, -1), (-1, 1), (1, -1), (1, 1)]:
+        relativePositions = [(0, -1), (0, 1), (-1, 0), (1, 0)]  # The 4 Nodes directly adjacent to self
+
+        if withDiagonals:
+            relativePositions += [(-1, -1), (-1, 1), (1, -1), (1, 1)]  # The 4 diagonal Nodes
+
+        for relPos in relativePositions:
 
             row = self.x + relPos[0]
             col = self.y + relPos[1]
@@ -42,3 +59,17 @@ class Node:
             # Check boundaries
             if 0 <= row < len(Node.GRID) and 0 <= col < len(Node.GRID[0]):
                 self.neighbors.append(Node.GRID[row][col])
+
+    def isAdjacentTo(self, node):
+        """
+        Returns true if nodes are adjacent, otherwise false
+        """
+
+        if node not in self.neighbors:
+            return False
+
+        return (self.x == node.x and self.y == node.y + 1) or (self.x == node.x and self.y == node.y - 1) or \
+            (self.x == node.x + 1 and self.y == node.y) or (self.x == node.x - 1 and self.y == node.y)
+
+    def __repr__(self):
+        return f'{self.x}, {self.y}'

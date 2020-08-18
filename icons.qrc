@@ -8,5 +8,7 @@
 
         <file alias="icons/start.png">icons/start.png</file>
 
+        <file alias="icons/wall.png">icons/wall.png</file>
+
     </qresource>
 </RCC>

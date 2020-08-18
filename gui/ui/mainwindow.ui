@@ -59,6 +59,12 @@
       <property name="sizeConstraint">
        <enum>QLayout::SetDefaultConstraint</enum>
       </property>
+      <property name="leftMargin">
+       <number>9</number>
+      </property>
+      <property name="rightMargin">
+       <number>9</number>
+      </property>
       <item>
        <widget class="QComboBox" name="algorithmBox">
         <property name="minimumSize">
@@ -73,6 +79,16 @@
        <widget class="QPushButton" name="goButton">
         <property name="text">
          <string>Go</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="allowDiagonals">
+        <property name="text">
+         <string>Allow Diagonals</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
         </property>
        </widget>
       </item>

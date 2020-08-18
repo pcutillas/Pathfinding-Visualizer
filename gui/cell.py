@@ -1,5 +1,6 @@
-from PySide2.QtWidgets import QSizePolicy, QLabel, QApplication
+from PySide2.QtWidgets import QSizePolicy, QLabel, QApplication, QGraphicsColorizeEffect
 from PySide2.QtGui import QColor, QPalette, QPixmap, QCursor, Qt
+from PySide2.QtCore import QPropertyAnimation
 
 
 class Cell(QLabel):
@@ -8,11 +9,10 @@ class Cell(QLabel):
     """
 
     EMPTY = QColor(0, 0, 0, 120)
-    JUST_SEARCHED = QColor(0, 0, 0)
-    JUST_SEARCHED_2 = QColor(0, 0, 0)
-    SEARCHED = QColor(250, 0, 0)
-    PATH = QColor(255, 255, 255)
-    WALL = QColor(255, 255, 255, 100)
+    SEARCHED = QColor(0, 55, 165)
+    IN_LIST = SEARCHED.lighter(f=150)
+    PATH = QColor(255, 255, 0)
+    WALL = QColor(255, 255, 255, 150)
 
     def __init__(self, node, mainWindow):
         # Init superclass
@@ -28,6 +28,10 @@ class Cell(QLabel):
         self.setScaledContents(True)  # Makes images scale to cell size
         self.setAttribute(Qt.WA_Hover, True)  # Allows the enterEvent definition to work
 
+        # Animation variables
+        self.effect = None
+        self.paAnimation = None
+
         # Initialize as empty cell
         self.draw(Cell.EMPTY)
 
@@ -35,6 +39,8 @@ class Cell(QLabel):
         """
         Draws this cell with the specified color. The class variables will be passed in, but any color can be used
         """
+        self.clear()
+        self.setGraphicsEffect(None)
 
         pal = QPalette()
         pal.setColor(QPalette.Background, color)
@@ -58,10 +64,41 @@ class Cell(QLabel):
         """
         if wall:
             self.draw(Cell.WALL)
+            self.setPixmap(QPixmap(":/icon/icons/wall.png"))
             self.node.wall = True
         else:
             self.draw(Cell.EMPTY)
             self.node.wall = False
+
+    def inPath(self):
+        self.draw(Cell.PATH)
+
+        if self.node.isStart:
+            self.setStart()
+        elif self.node.isEnd:
+            self.setEnd()
+
+    def searched(self):
+        """
+        Provides the color changing animation for recently searched nodes
+        """
+
+        self.draw(Cell.SEARCHED)
+
+        if self.node.isStart:
+            self.setStart()
+        elif self.node.isEnd:
+            self.setEnd()
+        else:
+
+            self.effect = QGraphicsColorizeEffect(self)
+            self.setGraphicsEffect(self.effect)
+
+            self.paAnimation = QPropertyAnimation(self.effect, b"color")
+            self.paAnimation.setStartValue(QColor(131, 18, 165))
+            self.paAnimation.setEndValue(Cell.SEARCHED)
+            self.paAnimation.setDuration(1000)
+            self.paAnimation.start()
 
     def mousePressEvent(self, event):
         """

@@ -1,15 +1,18 @@
-from PySide2.QtWidgets import QMainWindow, QApplication
+from PySide2.QtWidgets import QMainWindow, QApplication, QMessageBox
 from PySide2.QtGui import QIcon
 
 from gui.ui.ui_mainwindow import Ui_MainWindow
 from gui.cell import Cell
 from data.node import Node
+from data.algorithms import aStar
 
 
 class VisualizerWindow(QMainWindow):
     """
     The main window of this application
     """
+
+    instance = None
 
     def __init__(self):
 
@@ -42,6 +45,8 @@ class VisualizerWindow(QMainWindow):
         # Connecting button signals to functions
         self.connectSignals()
 
+        VisualizerWindow.instance = self
+
     def reset(self):
         """
         Resets the grid to its original state
@@ -49,10 +54,14 @@ class VisualizerWindow(QMainWindow):
 
         for x in range(self.numRows):
             for y in range(self.numCols):
-                Node.GRID[x][y].cell.setWall(False)
+                cell = Node.GRID[x][y].cell
+                cell.clear()
+                cell.setWall(False)
 
         self.start.cell.clear()
         self.end.cell.clear()
+        self.start.isStart = False
+        self.end.isEnd = False
 
         self.start = Node.GRID[round(self.numRows / 2)][8]
         self.end = Node.GRID[round(self.numRows / 2)][-8]
@@ -72,10 +81,17 @@ class VisualizerWindow(QMainWindow):
                 cell = Cell(Node(x, y), self)
                 self.ui.gridLayout.addWidget(cell, x, y)
 
-        # Then, reiterate to fill out every Node's neighbors
+        # Then reiterate and populate the neighbors, with diagonals enabled by default
+        self.populateNeighbors()
+
+    def populateNeighbors(self, withDiagonals: bool = True):
+        """
+        Populates all Nodes' neighbors
+        """
+
         for x in range(self.numRows):
             for y in range(self.numCols):
-                Node.GRID[x][y].populateNeighbors()
+                Node.GRID[x][y].populateNeighbors(withDiagonals)
 
     def setStartNode(self, node: Node):
         """
@@ -95,7 +111,7 @@ class VisualizerWindow(QMainWindow):
         Sets node as the end node and updates the GUI with it too
         """
         if not node.isStart:
-            self.start.isEnd = False
+            self.end.isEnd = False
             node.isEnd = True
 
             self.end.cell.draw(Cell.EMPTY)
@@ -109,16 +125,16 @@ class VisualizerWindow(QMainWindow):
         NOTE: The mouse press events are handled by the Cells
         """
 
-        newCell = self.childAt(event.pos())  # Not guaranteed that this is actually a cell yet
+        cell = self.childAt(event.pos())  # Not guaranteed that this is actually a cell yet
 
         if self.changingStart:
             QApplication.restoreOverrideCursor()
             self.changingStart = False
 
-            # Check for cell
-            if isinstance(newCell, Cell):
-                newCell.setWall(False)
-                self.setStartNode(newCell.node)
+            # Check that it is a cell and that it isn't either of the start or end nodes
+            if isinstance(cell, Cell) and not (cell.node.isEnd or cell.node.isStart):
+                cell.setWall(False)
+                self.setStartNode(cell.node)
             else:
                 self.setStartNode(self.start)
 
@@ -126,9 +142,10 @@ class VisualizerWindow(QMainWindow):
             QApplication.restoreOverrideCursor()
             self.changingEnd = False
 
-            if isinstance(newCell, Cell):
-                newCell.setWall(False)
-                self.setEndNode(newCell.node)
+            # Check that it is a cell and that it isn't either of the start or end nodes
+            if isinstance(cell, Cell) and not (cell.node.isEnd or cell.node.isStart):
+                cell.setWall(False)
+                self.setEndNode(cell.node)
             else:
                 self.setEndNode(self.end)
 
@@ -157,9 +174,40 @@ class VisualizerWindow(QMainWindow):
             if isinstance(cell, Cell) and not (cell.node.isEnd or cell.node.isStart):
                 cell.setWall(False)
 
+    def clearPastVisual(self):
+        """
+        Clears the visual that was last run
+        """
+
+        for x in range(self.numRows):
+            for y in range(self.numCols):
+                node = Node.GRID[x][y]
+
+                # A*
+                node.f = node.g = node.h = None
+
+                if node.wall:
+                    continue
+                node.cell.draw(Cell.EMPTY)
+
+                if node.isStart:
+                    node.cell.setStart()
+                elif node.isEnd:
+                    node.cell.setEnd()
+
     def connectSignals(self):
         """
         Connects all necessary signals from GUI elements to their respective functions
         """
 
         self.ui.resetButton.clicked.connect(self.reset)
+        self.ui.allowDiagonals.toggled.connect(self.populateNeighbors)
+
+        def runAStar():
+            self.clearPastVisual()
+            pathFound = aStar(self.start, self.end)
+
+            if not pathFound:
+                QMessageBox.warning(self, 'No Path Found', 'No paths were found.')
+
+        self.ui.goButton.clicked.connect(runAStar)
