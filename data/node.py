@@ -72,4 +72,5 @@ class Node:
             (self.x == node.x + 1 and self.y == node.y) or (self.x == node.x - 1 and self.y == node.y)
 
     def __repr__(self):
-        return f'{self.x}, {self.y}'
+        # Used for printing the node when debugging
+        return f'({self.x}, {self.y})'

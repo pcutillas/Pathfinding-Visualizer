@@ -1,7 +1,10 @@
 from PySide2.QtCore import QEventLoop, QTimer
 from PySide2.QtGui import QPixmap
 from PySide2.QtWidgets import QApplication
-from time import sleep as slowdown
+from time import sleep
+
+
+slowdown = 0
 
 
 def aStar(startNode, endNode):
@@ -23,7 +26,7 @@ def aStar(startNode, endNode):
         # Get the lowest-cost node and add to closed list
         closedList.append(curNode := openList.pop(0))
         curNode.searched()
-        slowdown(.01)
+        sleep(slowdown)
 
         # Refresh GUI (Called elsewhere too)
         QApplication.processEvents()
@@ -35,14 +38,13 @@ def aStar(startNode, endNode):
             while curNode is not startNode:  # Iterates back to the start node
                 path.append(curNode)
                 curNode = curNode.previous
-                print(curNode)
             path.append(startNode)
 
             # Draw path with a delay to somewhat animate it
             for node in reversed(path):
                 node.inPath()
                 QApplication.processEvents()
-                slowdown(.04)
+                sleep(slowdown*3)
 
             return True
 
@@ -55,7 +57,8 @@ def aStar(startNode, endNode):
                 continue
 
             # Calculate g
-            g = curNode.g + 1 if curNode.g is not None else 0
+            # g = curNode.g + 1 if curNode.g is not None else 0
+            g = abs(node.x - startNode.x) + abs(node.y - startNode.y)
 
             # Calculate h using heuristic
             h = abs(node.x - endNode.x)**2 + abs(node.y - endNode.y)**2

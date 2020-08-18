@@ -4,7 +4,7 @@ from PySide2.QtGui import QIcon
 from gui.ui.ui_mainwindow import Ui_MainWindow
 from gui.cell import Cell
 from data.node import Node
-from data.algorithms import aStar
+import data.algorithms as algs
 
 
 class VisualizerWindow(QMainWindow):
@@ -44,6 +44,7 @@ class VisualizerWindow(QMainWindow):
 
         # Connecting button signals to functions
         self.connectSignals()
+        self.ui.speedSlider.setValue(29)
 
         VisualizerWindow.instance = self
 
@@ -203,9 +204,15 @@ class VisualizerWindow(QMainWindow):
         self.ui.resetButton.clicked.connect(self.reset)
         self.ui.allowDiagonals.toggled.connect(self.populateNeighbors)
 
+        def changeSpeed(val):
+            # val ranges from 0 to 99. at 99, slowdown is .001, and at 0, .1
+            algs.slowdown = .5 / (val+1)
+
+        self.ui.speedSlider.valueChanged.connect(changeSpeed)
+
         def runAStar():
             self.clearPastVisual()
-            pathFound = aStar(self.start, self.end)
+            pathFound = algs.aStar(self.start, self.end)
 
             if not pathFound:
                 QMessageBox.warning(self, 'No Path Found', 'No paths were found.')
