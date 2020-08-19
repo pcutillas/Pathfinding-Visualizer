@@ -57,8 +57,8 @@ def aStar(startNode, endNode):
                 continue
 
             # Calculate g
-            # g = curNode.g + 1 if curNode.g is not None else 0
-            g = abs(node.x - startNode.x) + abs(node.y - startNode.y)
+            g = curNode.g + 1 if curNode.g is not None else 0
+            # g = abs(node.x - startNode.x) + abs(node.y - startNode.y)
 
             # Calculate h using heuristic
             h = abs(node.x - endNode.x)**2 + abs(node.y - endNode.y)**2
