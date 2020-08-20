@@ -1,6 +1,6 @@
 ## Pathfinding Visualizer
 
-A fast and easy-to-use pathfinding visualizer application written in Python 3.
+An easy-to-use pathfinding visualizer application written in Python 3.
 
 ![A quick demo gif](https://github.com/Frenchman98/Pathfinding-Visualizer/blob/master/demo.gif)
 
