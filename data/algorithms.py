@@ -10,7 +10,6 @@ slowdown = 0
 def aStar(startNode, endNode):
     """
     Runs an A Star algorithm to find the shortest path between the startNode and endNode.
-    Uses the Manhattan Distance heuristic
     Returns True if the path was found, otherwise returns False
     """
 
@@ -50,18 +49,17 @@ def aStar(startNode, endNode):
 
         # Now add the neighboring nodes if they aren't walls or already closed
         for node in curNode.neighbors:
-            if node.wall:
-                continue
-
-            if node in closedList:
+            if node.wall or node in closedList:
                 continue
 
             # Calculate g
             g = curNode.g + 1 if curNode.g is not None else 0
-            # g = abs(node.x - startNode.x) + abs(node.y - startNode.y)
+
+            if g >= 1 and g == node.g and node.isAdjacentTo(curNode):
+                g -= .9
 
             # Calculate h using heuristic
-            h = abs(node.x - endNode.x)**2 + abs(node.y - endNode.y)**2
+            h = abs(node.x - endNode.x) + abs(node.y - endNode.y)
 
             # Add to get f
             f = g + h
