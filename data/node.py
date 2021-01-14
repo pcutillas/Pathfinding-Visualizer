@@ -14,6 +14,7 @@ class Node:
         self.previous = previous
         self.neighbors = []  # Gets populated once grid is fully populated too
         self.isStart = self.isEnd = False
+        self.numTurns = 0  # Helps avoid unnecessary diagonals in some algorithms
 
         # For A*
         self.f = self.g = self.h = None

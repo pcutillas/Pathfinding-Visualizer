@@ -39,12 +39,12 @@
              <rect>
               <x>530</x>
               <y>230</y>
-              <width>56</width>
+              <width>91</width>
               <height>16</height>
              </rect>
             </property>
             <property name="text">
-             <string>Hello</string>
+             <string>Hello there</string>
             </property>
            </widget>
           </widget>
@@ -67,6 +67,16 @@
       </property>
       <item>
        <widget class="QComboBox" name="algorithmBox">
+        <property name="minimumSize">
+         <size>
+          <width>170</width>
+          <height>0</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QComboBox" name="heuristicBox">
         <property name="minimumSize">
          <size>
           <width>170</width>
@@ -149,7 +159,7 @@
      <x>0</x>
      <y>0</y>
      <width>1250</width>
-     <height>26</height>
+     <height>25</height>
     </rect>
    </property>
   </widget>

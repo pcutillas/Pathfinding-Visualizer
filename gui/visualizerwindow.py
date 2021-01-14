@@ -46,6 +46,9 @@ class VisualizerWindow(QMainWindow):
         self.connectSignals()
         self.ui.speedSlider.setValue(29)
 
+        # Populate the algorithm dropdown
+        self.populateDropdown()
+
         VisualizerWindow.instance = self
 
     def reset(self):
@@ -196,6 +199,57 @@ class VisualizerWindow(QMainWindow):
                 elif node.isEnd:
                     node.cell.setEnd()
 
+    def loadHeuristics(self, algIndex: int):
+        """
+        Loads the heuristics dropdown with appropriate heuristics
+        """
+
+        # Clear heuristics box
+        box = self.ui.heuristicBox
+        box.clear()
+
+        # Get applicable heuristics
+        heuristics = self.ui.algorithmBox.itemData(algIndex)['heuristics']
+
+        # Repopulate heuristic dropdown
+        for h in heuristics:
+            box.addItem(h, algs.HEURISTICS.get(h, None))
+
+    def runSelectedAlgorithm(self):
+        """
+        Runs the algorithm currently selected in the dropdown menu
+        """
+
+        self.clearPastVisual()
+
+        algorithm = self.ui.algorithmBox.currentData()['algorithm']
+        heuristic = self.ui.heuristicBox.currentData()
+
+        pathFound = algorithm(self.start, self.end, heuristic)
+
+        if not pathFound:
+            QMessageBox.warning(self, 'No Path Found', 'No paths were found.')
+
+    def populateDropdown(self):
+        """
+        Populates the dropdown with the list of supported algorithms
+
+        Each algorithm will have associated data of the form:
+        { 'algorithm': algorithmFunction, 'heuristics': [h1Name, h2Name, ...] }
+        """
+
+        icon = QIcon(":/icon/icons/app.ico")
+
+        # A Star
+        self.ui.algorithmBox.addItem(
+            icon, "A*",
+            userData=
+            {
+                'algorithm': algs.aStar,
+                'heuristics': ['Manhattan']
+            }
+        )
+
     def connectSignals(self):
         """
         Connects all necessary signals from GUI elements to their respective functions
@@ -210,11 +264,6 @@ class VisualizerWindow(QMainWindow):
 
         self.ui.speedSlider.valueChanged.connect(changeSpeed)
 
-        def runAStar():
-            self.clearPastVisual()
-            pathFound = algs.aStar(self.start, self.end)
+        self.ui.algorithmBox.currentIndexChanged.connect(self.loadHeuristics)
+        self.ui.goButton.clicked.connect(self.runSelectedAlgorithm)
 
-            if not pathFound:
-                QMessageBox.warning(self, 'No Path Found', 'No paths were found.')
-
-        self.ui.goButton.clicked.connect(runAStar)

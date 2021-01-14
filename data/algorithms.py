@@ -6,8 +6,12 @@ from time import sleep
 
 slowdown = 0
 
+HEURISTICS = {
+    'Manhattan': lambda node, endNode: abs(node.x - endNode.x) + abs(node.y - endNode.y)
+}
 
-def aStar(startNode, endNode):
+
+def aStar(startNode, endNode, heuristic):
     """
     Runs an A Star algorithm to find the shortest path between the startNode and endNode.
     Returns True if the path was found, otherwise returns False
@@ -55,11 +59,12 @@ def aStar(startNode, endNode):
             # Calculate g
             g = curNode.g + 1 if curNode.g is not None else 0
 
-            if g >= 1 and g == node.g and node.isAdjacentTo(curNode):
-                g -= .9
+            # Allows slight diagonal movement and a preference for adjacent nodes since 
+            if g >= 1 and (g == node.g or not node.g) and node.isAdjacentTo(curNode):
+                g -= .1
 
             # Calculate h using heuristic
-            h = abs(node.x - endNode.x) + abs(node.y - endNode.y)
+            h = heuristic(node, endNode)  # Manhattan Distance
 
             # Add to get f
             f = g + h
