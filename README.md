@@ -2,7 +2,7 @@
 
 An easy-to-use pathfinding visualizer application written in Python 3.
 
-![A quick demo](https://github.com/Frenchman98/Pathfinding-Visualizer/blob/master/demo.mp4)
+![A quick demo](https://github.com/Frenchman98/Pathfinding-Visualizer/blob/master/demo.gif)
 
 ### In Progress! Steps left to finish:
 
